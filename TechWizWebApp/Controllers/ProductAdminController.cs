@@ -20,7 +20,7 @@ namespace TechWizWebApp.Controllers
         [Authorize(Roles = "admin")]
         [HttpPost]
         [Route("create_product")]
-        public async Task<IActionResult> CreateProduct([FromForm]RequestCreateNewProduct requestCreateNewProduct)
+        public async Task<IActionResult> CreateProduct([FromForm] RequestCreateNewProduct requestCreateNewProduct)
         {
             var customResult = await _productAdmin.CreateNewProduct(requestCreateNewProduct);
             return Ok(customResult);
@@ -53,6 +53,21 @@ namespace TechWizWebApp.Controllers
             return Ok(customResult);
         }
 
+        [HttpGet]
+        [Route("search_product")]
+        public async Task<IActionResult> SearchProduct([FromQuery] string productName)
+        {
+            var customResult = await _productAdmin.SearchProduct(productName);
+            return Ok(customResult);
+        }
+
+        [HttpGet]
+        [Route("show_specific_product")]
+        public async Task<IActionResult> GetSpecificProduct([FromQuery] ICollection<int> productId)
+        {
+            var customResult = await _productAdmin.GetSpecificProduct(productId);
+            return Ok(customResult);
+        }
 
 
     }

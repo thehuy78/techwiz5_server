@@ -28,15 +28,17 @@ namespace TechWizWebApp.Data
         public DbSet<ProductImage> ProductImages { get; set; }
 
         public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<Story> Stories { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
-             .HasOne(u => u.userdetails)
-             .WithOne(ud => ud.User)
-             .HasForeignKey<UserDetails>(ud => ud.user_id);
+                 .HasOne(u => u.userdetails)
+                 .WithOne(ud => ud.User)
+                 .HasForeignKey<UserDetails>(ud => ud.user_id);
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.interiordesigner)
@@ -45,10 +47,10 @@ namespace TechWizWebApp.Data
 
             //many to many consutation with user and designer
             modelBuilder.Entity<Consultation>()
-           .HasOne(c => c.user)
-           .WithMany(u => u.consultations)
-           .HasForeignKey(c => c.user_id)
-           .OnDelete(DeleteBehavior.NoAction);
+               .HasOne(c => c.user)
+               .WithMany(u => u.consultations)
+               .HasForeignKey(c => c.user_id)
+               .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Consultation>()
                 .HasOne(c => c.interior_designer)
@@ -124,9 +126,9 @@ namespace TechWizWebApp.Data
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Product>()
-          .HasMany(p => p.images).WithOne(p => p.product)
-          .HasForeignKey(p => p.productid)
-          .OnDelete(DeleteBehavior.NoAction);
+              .HasMany(p => p.images).WithOne(p => p.product)
+              .HasForeignKey(p => p.productid)
+              .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Variant>()
                 .HasMany(p => p.variantattributes)
@@ -142,12 +144,11 @@ namespace TechWizWebApp.Data
 
 
             modelBuilder.Entity<Gallery>()
-      .HasOne(b => b.interior_designer)
-      .WithMany(id => id.galleries)
-      .HasForeignKey(b => b.interior_designer_id)
-      .OnDelete(DeleteBehavior.NoAction);
+              .HasOne(b => b.interior_designer)
+              .WithMany(id => id.galleries)
+              .HasForeignKey(b => b.interior_designer_id)
+              .OnDelete(DeleteBehavior.NoAction);
           
-
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.user)
                 .WithMany(u => u.orders)
@@ -176,10 +177,10 @@ namespace TechWizWebApp.Data
                 .HasMany(p => p.images).WithOne(i => i.product).HasForeignKey(i => i.productid).OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<OrderDetails>()
-    .HasOne(od => od.order)
-    .WithMany(o => o.order_details)
-    .HasForeignKey(od => od.order_id)
-    .OnDelete(DeleteBehavior.NoAction);
+                .HasOne(od => od.order)
+                .WithMany(o => o.order_details)
+                .HasForeignKey(od => od.order_id)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<OrderDetails>()
                 .HasOne(od => od.variant)
@@ -187,9 +188,17 @@ namespace TechWizWebApp.Data
                 .HasForeignKey(od => od.variant_id)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            
+            modelBuilder.Entity<Notification>()
+               .HasOne(b => b.user)
+               .WithMany(id => id.notifications)
+               .HasForeignKey(b => b.user_id)
+               .OnDelete(DeleteBehavior.NoAction);
 
-           
+            modelBuilder.Entity<Story>()
+                .HasOne(b => b.interior_designer)
+                .WithMany(id => id.stories)
+                .HasForeignKey(b => b.interior_designer_id)
+                .OnDelete(DeleteBehavior.NoAction);
 
             base.OnModelCreating(modelBuilder);
         }

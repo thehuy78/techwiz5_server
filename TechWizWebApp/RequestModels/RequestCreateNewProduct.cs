@@ -14,5 +14,7 @@ namespace TechWizWebApp.RequestModels
         public ICollection<string> VariantsJSON { get; set; }
 
         public ICollection<VariantDetail> VariantDetails { get; set; } = new List<VariantDetail>();
+
+        public ICollection<string>? colorJson { get; set; }
     }
 }

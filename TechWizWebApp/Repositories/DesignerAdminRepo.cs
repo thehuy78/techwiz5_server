@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Cms;
 using System.Numerics;
+using TechWizWebApp.Controllers;
 using TechWizWebApp.Data;
 using TechWizWebApp.Domain;
 using TechWizWebApp.Interfaces;
@@ -63,6 +64,19 @@ namespace TechWizWebApp.Repositories
                     yearsofexperience = requestDesignerRegister.Year,
                     status = true,
                 };
+
+
+                if (requestDesignerRegister.Certificate != null || requestDesignerRegister.Certificate.Count != 0)
+                {
+                    string certificateString = "";
+                    foreach (var image in requestDesignerRegister.Certificate)
+                    {
+                        var imageName = await _fileService.UploadImageAsync(image);
+                        certificateString = certificateString + "; " + imageName;
+                    }
+                    newDesigner.certificate = certificateString;
+
+                }
 
                 if (requestDesignerRegister.Avatar != null)
                 {
@@ -143,11 +157,52 @@ namespace TechWizWebApp.Repositories
             }
         }
 
-        public async Task<CustomPaging> GetListPendingDesigner(int pageNumber, int pageSize, string search)
+        public async Task<CustomResult> GetUnapproveDesignerById(int id)
         {
             try
             {
-                var designers = _context.InteriorDesigners.OrderByDescending(p => p.id).Include(d => d.user).Where(d => d.approved_status == "pending" && (d.first_name.Contains(search) || d.last_name.Contains(search) || d.address.Contains(search) || d.user.email.Contains(search)));
+                var designer = await _context.InteriorDesigners.Include(d => d.user).SingleOrDefaultAsync(d => d.user_id == id && d.approved_status == "pending");
+
+                if (designer == null)
+                {
+                    return new CustomResult(404, "Not found", null);
+                }
+
+                return new CustomResult(200, "Success", designer);
+
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult(400, "Bad request", ex.Message);
+            }
+        }
+
+        public async Task<CustomResult> GetApproveDesignerById(int id)
+        {
+            try
+            {
+                var designer = await _context.InteriorDesigners.Include(d => d.user).SingleOrDefaultAsync(d => d.user_id == id && d.approved_status == "approved");
+
+                if (designer == null)
+                {
+                    return new CustomResult(404, "Not found", null);
+                }
+
+                return new CustomResult(200, "Success", designer);
+
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult(400, "Bad request", ex.Message);
+            }
+        }
+
+        public async Task<CustomPaging> GetListPendingDesigner(int pageNumber, int pageSize, int year, string specialize, string search)
+        {
+            try
+            {
+
+                var designers = _context.InteriorDesigners.OrderByDescending(p => p.id).Include(d => d.user).Where(d => d.approved_status == "pending" && (d.first_name.Contains(search) || d.last_name.Contains(search) || d.address.Contains(search) || d.user.email.Contains(search)) && (d.specialization.Contains(specialize)) && d.yearsofexperience >= year);
 
 
                 var total = designers.Count();
@@ -187,7 +242,7 @@ namespace TechWizWebApp.Repositories
             }
         }
 
-        public async Task<CustomPaging> GetListApprovedDesigner(int pageNumber, int pageSize, string search)
+        public async Task<CustomPaging> GetListApprovedDesigner(int pageNumber, int pageSize, int year, bool status, string specialize, string search)
         {
             try
             {
@@ -196,7 +251,7 @@ namespace TechWizWebApp.Repositories
 
                 query = _context.InteriorDesigners;
 
-                query = query.OrderByDescending(p => p.id).Include(d => d.user).Where(d => d.approved_status == "approved" && (d.first_name.Contains(search) || d.last_name.Contains(search) || d.address.Contains(search) || d.user.email.Contains(search)));
+                query = query.OrderByDescending(p => p.id).Include(d => d.user).Where(d => d.approved_status == "approved" && (d.first_name.Contains(search) || d.last_name.Contains(search) || d.address.Contains(search) || d.user.email.Contains(search)) && (d.specialization.Contains(specialize)) && d.yearsofexperience >= year && d.status == status);
 
                 var total = query.Count();
 
@@ -429,6 +484,51 @@ namespace TechWizWebApp.Repositories
             }
         }
 
+        public async Task<CustomResult> UpdateCertificate(DesignerAdminController.UpdateCertificate updateCertificate)
+        {
+            try
+            {
+                var designer = await _context.InteriorDesigners.SingleOrDefaultAsync(d => d.id == updateCertificate.DesignerId);
+
+                if (designer == null)
+                {
+                    return new CustomResult(404, "Not found", null);
+                }
+
+                string certificateString = "";
+
+                if (updateCertificate.OldList != null && updateCertificate.OldList.Count != 0)
+                {
+                    foreach (var image in updateCertificate.OldList)
+                    {
+                        certificateString = certificateString + "; " + image;
+                    }
+                }
+
+                if (updateCertificate.NewImages != null && updateCertificate.NewImages.Count != 0)
+                {
+
+                    foreach (var image in updateCertificate.NewImages)
+                    {
+                        var imageName = await _fileService.UploadImageAsync(image);
+                        certificateString = certificateString + "; " + imageName;
+                    }
+                }
+
+                designer.certificate = certificateString;
+
+                _context.InteriorDesigners.Update(designer);
+
+                await _context.SaveChangesAsync();
+
+                return new CustomResult(200, "Success", null);
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult(400, "Bad request", ex.Message);
+            }
+        }
+
         public string approveDesignerBody(string email)
         {
             string emailContent = $@"
@@ -590,5 +690,7 @@ namespace TechWizWebApp.Repositories
             return denyEmailContent;
 
         }
+
+
     }
 }

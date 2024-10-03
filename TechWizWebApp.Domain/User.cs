@@ -18,6 +18,8 @@ namespace TechWizWebApp.Domain
         public List<Order> orders { get; set; } = new List<Order>();
         public List<Subcribe> subcribes { get; set; } = new List<Subcribe>();
 
+        public List<Notification> notifications { get; set; } = new List<Notification>();
+
         [NotMapped]
         public string Role
         {

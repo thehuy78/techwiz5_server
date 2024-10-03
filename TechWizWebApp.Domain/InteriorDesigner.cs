@@ -18,7 +18,7 @@ namespace TechWizWebApp.Domain
         public string last_name { get; set; } = string.Empty;
         public string contact_number { get; set; } = string.Empty;
         public string address { get; set; } = string.Empty;
-        public string yearsofexperience { get; set; } = string.Empty;
+        public int yearsofexperience { get; set; } 
         public string specialization { get; set; } = string.Empty;
         public string portfolio { get; set; } = string.Empty;
         public string daywork { get; set; } = string.Empty;
@@ -30,5 +30,6 @@ namespace TechWizWebApp.Domain
         public List<Review> reviews { get; set; } = new List<Review>();
         public List<Consultation> consultations { get; set; } = new List<Consultation>();
         public List<Blog> blogs { get; set; } = new List<Blog>();
+        public List<Story> stories { get; set; } = new List<Story>();
     }
 }

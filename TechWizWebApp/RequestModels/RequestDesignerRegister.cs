@@ -18,9 +18,11 @@ namespace TechWizWebApp.RequestModels
 
         public string Specialization { get; set; }
 
-        public string Year { get; set; }
+        public int Year { get; set; }
 
-        public string? Porfolio {  get; set; }
+        public string? Porfolio { get; set; }
+
+        public ICollection<IFormFile>? Certificate { get; set; }
 
         public IFormFile? Avatar { get; set; }
 

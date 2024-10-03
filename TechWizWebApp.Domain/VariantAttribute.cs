@@ -15,6 +15,7 @@ namespace TechWizWebApp.Domain
         public Variant? variant { get; set; }
         public string attributetype { get; set; }
         public int priority { get; set; }
+        public string? note { get; set; }
         public string attributevalue { get; set; }
     }
 }

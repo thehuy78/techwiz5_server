@@ -1,5 +1,6 @@
 ﻿
 using TechWizWebApp.Data;
+using TechWizWebApp.Domain;
 
 namespace TechWizWebApp.Interface
 {
@@ -10,10 +11,17 @@ namespace TechWizWebApp.Interface
 
         Task<CustomResult> GetByName(string name);
 
-        Task<CustomResult> Create(TechWizWebApp.Domain.Gallery gallery);
+        Task<CustomResult> Create(int userId, TechWizWebApp.Domain.Gallery gallery);
 
         Task<CustomResult> Update(TechWizWebApp.Domain.Gallery gallery);
 
         Task<CustomResult> ChangeStatus(int id);
+
+
+        Task<CustomPaging> GetAdminGalleries(int pageNumber, int pageSize, bool status, List<string> by, string designerName, string colorTone, string name);
+
+        Task<CustomPaging> GetDesignerGalleries(int userId, int pageNumber, int pageSize, bool status, string colorTone, string name);
+
+
     }
 }

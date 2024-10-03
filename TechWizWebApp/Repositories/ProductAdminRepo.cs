@@ -31,7 +31,7 @@ namespace TechWizWebApp.Repositories
             {
                 var product = await _context.Products.SingleOrDefaultAsync(p => p.id == productId);
 
-                if(product == null)
+                if (product == null)
                 {
                     return new CustomResult(400, "Not found", null);
                 }
@@ -62,6 +62,17 @@ namespace TechWizWebApp.Repositories
                     functionality_id = requestCreateNewProduct.RoomFuncion,
                     status = requestCreateNewProduct.Status,
                 };
+
+                ICollection<Color> colors = new List<Color>();
+
+                if (requestCreateNewProduct.colorJson != null)
+                {
+                    foreach (var json in requestCreateNewProduct.colorJson)
+                    {
+                        var detail = JsonConvert.DeserializeObject<Color>(json);
+                        colors.Add(detail);
+                    }
+                }
 
                 foreach (var image in requestCreateNewProduct.Images)
                 {
@@ -104,6 +115,11 @@ namespace TechWizWebApp.Repositories
                             attributevalue = item.variant.ToArray()[i]
                         };
 
+                        if (newVariantAttribute.attributetype == "Color")
+                        {
+                            newVariantAttribute.note = colors.FirstOrDefault(colorObj => colorObj.color == newVariantAttribute.attributevalue).hex;
+                        }
+
                         _context.VariantAttributes.Add(newVariantAttribute);
                     }
 
@@ -118,7 +134,7 @@ namespace TechWizWebApp.Repositories
             }
             catch (Exception ex)
             {
-                return new CustomResult(400, "Bad Request", ex.Message);
+                return new CustomResult(400, "Bad Request", ex.InnerException.Message);
             }
 
         }
@@ -133,7 +149,7 @@ namespace TechWizWebApp.Repositories
 
                 query = query.Where(p => p.status == active);
 
-                if(search != null)
+                if (search != null)
                 {
                     query = query.Where(p => p.productname.Contains(search));
                 }
@@ -171,7 +187,7 @@ namespace TechWizWebApp.Repositories
                 return customPaging;
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new CustomPaging()
                 {
@@ -188,8 +204,10 @@ namespace TechWizWebApp.Repositories
 
         public async Task<CustomResult> GetProductSelect()
         {
-            try {
-                var list = await _context.Products.Select(e=> new ProductSelect() { 
+            try
+            {
+                var list = await _context.Products.Select(e => new ProductSelect()
+                {
                     value = e.id,
                     label = e.productname
                 }).ToListAsync();
@@ -199,23 +217,61 @@ namespace TechWizWebApp.Repositories
                     data = list
                 };
             }
-            catch(Exception ex) { return new CustomResult() { 
-                Status = 400,
-                Message=ex.Message,
-               
-            }; }
+            catch (Exception ex)
+            {
+                return new CustomResult()
+                {
+                    Status = 400,
+                    Message = ex.Message,
+
+                };
+            }
         }
 
-  
+        public async Task<CustomResult> GetSpecificProduct(ICollection<int> productId)
+        {
+            try
+            {
+                var products = await _context.Products.Include(p => p.variants).Where(p => productId.Contains(p.id)).ToListAsync();
 
-       
+                return new CustomResult(200, "Success", products);
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult(400, "Bad Request", ex.Message);
+            }
+        }
+
+        public async Task<CustomResult> SearchProduct(string productName)
+        {
+            try
+            {
+                var products = await _context.Products.Where(p => p.productname.Contains(productName) && p.status == true).Take(10).ToListAsync();
+
+                return new CustomResult(200, "Success", products);
+
+
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult(400, "Bad Request", ex.Message);
+            }
+        }
 
         private class ProductSelect()
         {
-            public int? value {  get; set; }
+            public int? value { get; set; }
 
             public string? label { get; set; }
         }
+
+        private class Color
+        {
+            public string color { get; set; }
+            public string hex { get; set; }
+
+        }
+
     }
-    
+
 }

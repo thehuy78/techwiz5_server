@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using TechWizWebApp.Data;
 using TechWizWebApp.Interfaces;
 using TechWizWebApp.RequestModels;
@@ -39,9 +40,9 @@ namespace TechWizWebApp.Controllers
         [Authorize(Roles = "admin")]
         [HttpGet]
         [Route("pending_list")]
-        public async Task<IActionResult> GetPendingApprovedDesigner([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string search = "")
+        public async Task<IActionResult> GetPendingApprovedDesigner([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int year, [FromQuery] string specialize = "", [FromQuery] string search = "")
         {
-            var customPaging = await _designerAdmin.GetListPendingDesigner(pageNumber, pageSize, search);
+            var customPaging = await _designerAdmin.GetListPendingDesigner(pageNumber, pageSize, year, specialize, search);
 
             return Ok(customPaging);
         }
@@ -49,9 +50,9 @@ namespace TechWizWebApp.Controllers
         [Authorize(Roles = "admin")]
         [HttpGet]
         [Route("approved_list")]
-        public async Task<IActionResult> GetApprovedDesigner([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string search = "")
+        public async Task<IActionResult> GetApprovedDesigner([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int year, [FromQuery] bool status, [FromQuery] string specialize = "", [FromQuery] string search = "")
         {
-            var customPaging = await _designerAdmin.GetListApprovedDesigner(pageNumber, pageSize, search);
+            var customPaging = await _designerAdmin.GetListApprovedDesigner(pageNumber, pageSize, year, status, specialize, search);
 
             return Ok(customPaging);
         }
@@ -62,6 +63,26 @@ namespace TechWizWebApp.Controllers
         public async Task<IActionResult> GetDesignerById([FromQuery] int designerId)
         {
             var customResult = await _designerAdmin.GetDesignerById(designerId);
+
+            return Ok(customResult);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet]
+        [Route("get_approved_designer")]
+        public async Task<IActionResult> GetApprovedDesignerById([FromQuery] int designerId)
+        {
+            var customResult = await _designerAdmin.GetApproveDesignerById(designerId);
+
+            return Ok(customResult);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet]
+        [Route("get_unapproved_designer")]
+        public async Task<IActionResult> GetUnapprovedDesignerById([FromQuery] int designerId)
+        {
+            var customResult = await _designerAdmin.GetUnapproveDesignerById(designerId);
 
             return Ok(customResult);
         }
@@ -147,6 +168,17 @@ namespace TechWizWebApp.Controllers
             return Ok(customResult);
         }
 
+        [Authorize(Roles = "designer")]
+        [HttpPut]
+        [Route("update_certificate")]
+        public async Task<IActionResult> ChangePortfolio([FromForm] UpdateCertificate updateCertificate)
+        {
+            var customResult = await _designerAdmin.UpdateCertificate(updateCertificate);
+
+            return Ok(customResult);
+        }
+
+
 
         [Authorize(Roles = "designer")]
         [HttpPut]
@@ -163,7 +195,7 @@ namespace TechWizWebApp.Controllers
         }
 
         [HttpPut("ForgortPassword")]
-        public async Task<ActionResult> ForgotPassword([FromForm]ForgotPasswordRequest request)
+        public async Task<ActionResult> ForgotPassword([FromForm] ForgotPasswordRequest request)
         {
             //kiem tra email da duoc tao chua
             var user = await _context.Users.Include(u => u.userdetails).Where(u => u.email == request.email).FirstOrDefaultAsync();
@@ -209,13 +241,23 @@ namespace TechWizWebApp.Controllers
             });
         }
 
+
+        public class UpdateCertificate
+        {
+            public int DesignerId { get; set; }
+            public ICollection<string>? OldList { get; set; }
+
+            public ICollection<IFormFile>? NewImages { get; set; }
+
+        }
+
         public class ForgotPasswordRequest
         {
             public string? email { get; set; }
         }
 
         [HttpGet("ResetPassword")]
-        public async Task<ActionResult> ResetPassword([FromQuery]int userId)
+        public async Task<ActionResult> ResetPassword([FromQuery] int userId)
         {
             var user = await _context.Users.Include(u => u.userdetails).FirstOrDefaultAsync(u => u.id == userId);
 

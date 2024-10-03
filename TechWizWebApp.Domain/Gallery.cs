@@ -28,9 +28,13 @@ namespace TechWizWebApp.Domain
         public string imageName { get; set; } = string.Empty;
         public RoomType? room_type { get; set; }
         public List<GalleryDetails>? galleryDetails { get; set; } 
-        public List<Subcribe>? subcribes { get; set; }       
+        public List<Subcribe>? subcribes { get; set; }  
+        
         [NotMapped]
         public List<IFormFile>? uploadImages { get; set; }
+
+        [NotMapped]
+        public List<string>? oldImages { get; set; }
 
         public DateTime? created_date { get; set; } 
 

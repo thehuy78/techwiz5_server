@@ -1,4 +1,5 @@
-﻿using TechWizWebApp.Data;
+﻿using TechWizWebApp.Controllers;
+using TechWizWebApp.Data;
 using TechWizWebApp.Domain;
 using TechWizWebApp.RequestModels;
 
@@ -13,8 +14,9 @@ namespace TechWizWebApp.Interfaces
         Task<CustomResult> activeBlog(RequestActiveBlog request);
         Task<CustomResult> searchBlogByName(string name);
         Task<CustomResult> readBlogById(int id);
-        Task<CustomResult> fitterStatus(bool? status, string? name);
+        Task<CustomPaging> getBlogByAdmin(int pageNumber, int pageSize, bool status, List<string> by, string designerName, string name);
+        Task<CustomResult> UpdateBlog(RequestUpdateBlog requestUpdateBlog);
 
-
+        Task<CustomPaging> getBlogByDesigner(int userId, int pageNumber, int pageSize, bool status, string name);
     }
 }

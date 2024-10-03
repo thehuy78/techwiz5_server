@@ -99,11 +99,48 @@ namespace TechWizWebApp.Controllers
             var result = await _blog.activeBlog(request);
             return Ok(result);
         }
+
         [HttpGet("getblogbystatus")]
-        public async Task<ActionResult> GetBlogByStatus(bool? status, string? name)
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> GetBlogByStatus([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] bool status, [FromQuery] List<string> by, [FromQuery] string designerName = "", [FromQuery] string name = "")
         {
-            var result = await _blog.fitterStatus(status, name);
+            var result = await _blog.getBlogByAdmin(pageNumber, pageSize, status, by, designerName, name);
             return Ok(result);
         }
+
+        [HttpGet("get_blog_by_designer")]
+        [Authorize(Roles = "designer")]
+        public async Task<ActionResult> GetBlogByDesigner([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] bool status, [FromQuery] string name = "")
+        {
+            var idClaim = User.Claims.FirstOrDefault(c => c.Type == "Id").Value;
+            int.TryParse(idClaim, out int userId);
+
+            var result = await _blog.getBlogByDesigner(userId, pageNumber, pageSize, status, name);
+            return Ok(result);
+        }
+
+
+
+
+        [HttpPut]
+        [Route("update_blog")]
+        [Authorize(Roles = "admin, designer")]
+        public async Task<IActionResult> UpdateBlog([FromForm] RequestUpdateBlog requestUpdateBlog)
+        {
+            var customResult = await _blog.UpdateBlog(requestUpdateBlog);
+
+            return Ok(customResult);
+        }
+    }
+
+    public class RequestUpdateBlog
+    {
+        public int Id { get; set; }
+
+        public string Title { get; set; }
+
+        public string Content { get; set; }
+
+        public IFormFile? Image { get; set; }
     }
 }

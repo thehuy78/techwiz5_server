@@ -63,19 +63,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-builder.Services.AddScoped<IFileService, FileService>();
-builder.Services.AddScoped<IMailService, MailService>();
-builder.Services.AddScoped<ISeedService, SeedService>();
-builder.Services.AddScoped<IAuthAdmin, AuthAdminRepo>();
-builder.Services.AddScoped<IProductAdmin, ProductAdminRepo>();
-builder.Services.AddScoped<IDesignerAdmin, DesignerAdminRepo>();
-builder.Services.AddScoped<IConsultationAdmin, ConsultationAdminRepo>();
+builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IMailService, MailService>();
+builder.Services.AddTransient<ISeedService, SeedService>();
+builder.Services.AddTransient<IAuthAdmin, AuthAdminRepo>();
+builder.Services.AddTransient<IProductAdmin, ProductAdminRepo>();
+builder.Services.AddTransient<IDesignerAdmin, DesignerAdminRepo>();
+builder.Services.AddTransient<IConsultationAdmin, ConsultationAdminRepo>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IGallery, GalleryRepo>();
 builder.Services.AddTransient<IRoomType, TypeRoomRepo>();
 builder.Services.AddTransient<IOrder, OrderRepo>();
 builder.Services.AddTransient<IOrderDetails, OrderDetailRepo>();
-builder.Services.AddScoped<IBlog, BlogRepo>();
+builder.Services.AddTransient<IBlog, BlogRepo>();
+builder.Services.AddTransient<IStoryAdmin, StoryAdminRepo>();
 
 //user
 builder.Services.AddTransient<IRoomTypeFE, RoomTypeFERepo>();

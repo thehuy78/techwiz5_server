@@ -29,68 +29,132 @@ namespace TechWizWebApp.Repositories
             _mailService = mailService;
             _context = dataContext;
         }
-        public async Task<CustomResult> fitterStatus(bool? status, string? name)
+        public async Task<CustomPaging> getBlogByAdmin(int pageNumber, int pageSize, bool status, List<string> by, string designerName, string name)
         {
             try
             {
+                IQueryable<Blog> query;
 
-                if (status == null && name == null)
+                query = _context.Blogs;
+
+                query = query.Include(p => p.interior_designer).Where(b => b.status == status && b.title.Contains(name)).OrderByDescending(c => c.UpdatedDate);
+
+                if (by.Count != 0 && by.Count != 2)
                 {
-                    var query = _context.Blogs
-                       .AsNoTracking()
-                       .Include(b => b.interior_designer)
-                       .AsSingleQuery();
-
-                    var result = await query.ToListAsync();
-                    result.Reverse();
-
-
-                    return new CustomResult(200, "Success", result);
-                }
-                if (status != null && name == null)
-                {
-                    var query = _context.Blogs.Where(b => b.status == status)
-                    .AsNoTracking()
-                    .Include(b => b.interior_designer)
-                    .AsSingleQuery();
-
-                    var result = await query.ToListAsync();
-                    result.Reverse();
-                    return new CustomResult(200, "Success", result);
-                }
-                if (status == null && name != null)
-                {
-                    var query = _context.Blogs.Where(b => b.title.Contains(name))
-                    .AsNoTracking()
-                    .Include(b => b.interior_designer)
-                    .AsSingleQuery();
-
-                    var result = await query.ToListAsync();
-                    result.Reverse();
-                    return new CustomResult(200, "Success", result);
-                }
-                if (status != null && name != null)
-                {
-                    var query = _context.Blogs.Where(b => b.status == status && b.title.Contains(name))
-                    .AsNoTracking()
-                    .Include(b => b.interior_designer)
-                    .AsSingleQuery();
-
-                    var result = await query.ToListAsync();
-                    result.Reverse();
-                    return new CustomResult(200, "Success", result);
+                    if (by.Contains("Designer"))
+                    {
+                        query = query.Where(p => p.interior_designer != null);
+                    }
+                    else
+                    {
+                        query = query.Where(p => p.interior_designer == null);
+                    }
                 }
 
-                return new CustomResult(400, "failed", null);
+                if (designerName.Length > 0)
+                {
+                    query = query.Where(p => p.interior_designer != null && (p.interior_designer.first_name.Contains(designerName) || p.interior_designer.last_name.Contains(designerName)));
+                }
 
+                var total = query.Count();
+
+                query = query.Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+                var list = await query.ToListAsync();
+
+                var customPaging = new CustomPaging()
+                {
+                    Status = 200,
+                    Message = "OK",
+                    CurrentPage = pageNumber,
+                    TotalPages = (int)Math.Ceiling((double)total / pageSize),
+                    PageSize = pageSize,
+                    TotalCount = total,
+                    Data = list
+                };
+
+                return customPaging;
             }
             catch (Exception ex)
             {
-                return new CustomResult(400, "Success", ex.Message);
+                return new CustomPaging()
+                {
+                    Status = 400,
+                    Message = ex.Message,
+                    CurrentPage = pageNumber,
+                    TotalPages = 0,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    Data = null
+                };
 
             }
-
         }
+
+        public async Task<CustomPaging> getBlogByDesigner(int userId, int pageNumber, int pageSize, bool status, string name)
+        {
+            try
+            {
+                var designer = await _context.InteriorDesigners.SingleOrDefaultAsync(p => p.user_id == userId);
+
+                if (designer == null)
+                {
+                    return new CustomPaging()
+                    {
+                        Status = 404,
+                        Message = "Not found",
+                        CurrentPage = pageNumber,
+                        TotalPages = 0,
+                        PageSize = pageSize,
+                        TotalCount = 0,
+                        Data = null
+                    };
+                }
+
+                IQueryable<Blog> query;
+
+                query = _context.Blogs;
+
+                query = query.Include(p => p.interior_designer).Where(b => b.interior_designer_id == designer.id && b.status == status && b.title.Contains(name)).OrderByDescending(c => c.UpdatedDate);
+
+
+                var total = query.Count();
+
+                query = query.Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+                var list = await query.ToListAsync();
+
+                var customPaging = new CustomPaging()
+                {
+                    Status = 200,
+                    Message = "OK",
+                    CurrentPage = pageNumber,
+                    TotalPages = (int)Math.Ceiling((double)total / pageSize),
+                    PageSize = pageSize,
+                    TotalCount = total,
+                    Data = list
+                };
+
+                return customPaging;
+            }
+            catch (Exception ex)
+            {
+                return new CustomPaging()
+                {
+                    Status = 400,
+                    Message = ex.Message,
+                    CurrentPage = pageNumber,
+                    TotalPages = 0,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    Data = null
+                };
+
+            }
+        }
+
         public async Task<CustomResult> readBlogById(int id)
 
         {
@@ -264,6 +328,37 @@ namespace TechWizWebApp.Repositories
             {
                 return new CustomResult(400, "Failed", null);
 
+            }
+        }
+
+        public async Task<CustomResult> UpdateBlog(RequestUpdateBlog requestUpdateBlog)
+        {
+            try
+            {
+                var blog = await _context.Blogs.SingleOrDefaultAsync(b => b.id == requestUpdateBlog.Id);
+
+                if (blog == null)
+                {
+                    return new CustomResult(404, "Not found", null);
+                }
+
+                blog.title = requestUpdateBlog.Title;
+                blog.content = requestUpdateBlog.Content;
+
+                if (requestUpdateBlog.Image != null)
+                {
+                    blog.images = await _fileService.UploadImageAsync(requestUpdateBlog.Image);
+                }
+
+                _context.Blogs.Update(blog);
+
+                await _context.SaveChangesAsync();
+
+                return new CustomResult(200, "Success", null);
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult(400, "Failed", null);
             }
         }
     }

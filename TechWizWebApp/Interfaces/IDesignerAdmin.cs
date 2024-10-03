@@ -2,6 +2,7 @@
 using TechWizWebApp.Data;
 using TechWizWebApp.Domain;
 using TechWizWebApp.RequestModels;
+using static TechWizWebApp.Controllers.DesignerAdminController;
 
 namespace TechWizWebApp.Interfaces
 {
@@ -11,9 +12,13 @@ namespace TechWizWebApp.Interfaces
 
         Task<CustomResult> GetDesignerById(int id);
 
-        Task<CustomPaging> GetListPendingDesigner(int pageNumber, int pageSize, string search); 
+        Task<CustomResult> GetUnapproveDesignerById(int id);
 
-        Task<CustomPaging> GetListApprovedDesigner(int pageNumber, int pageSize, string search);
+        Task<CustomResult> GetApproveDesignerById(int id);
+
+        Task<CustomPaging> GetListPendingDesigner(int pageNumber, int pageSize, int year, string specialize, string search);
+
+        Task<CustomPaging> GetListApprovedDesigner(int pageNumber, int pageSize, int year, bool status, string specialize, string search);
 
         Task<CustomResult> ApproveDesigner(int designerId);
 
@@ -30,5 +35,7 @@ namespace TechWizWebApp.Interfaces
         Task<CustomResult> UpdateImage(int designerId, IFormFile avatar);
 
 
+
+        Task<CustomResult> UpdateCertificate(UpdateCertificate updateCertificate);
     }
 }

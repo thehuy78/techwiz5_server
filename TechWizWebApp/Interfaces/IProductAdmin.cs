@@ -15,6 +15,10 @@ namespace TechWizWebApp.Interfaces
 
         public Task<CustomResult> ChangeProductStatus(int productId);
 
-    
+        public Task<CustomResult> GetSpecificProduct(ICollection<int> productId);
+
+        public Task<CustomResult> SearchProduct(string productName);
+
+
     }
 }

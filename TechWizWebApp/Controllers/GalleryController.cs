@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TechWizWebApp.Data;
@@ -23,7 +24,10 @@ namespace WebApplication1.Controllers
         [HttpPost("createNew")]
         public async Task<ActionResult> Create([FromForm] Gallery gallery)
         {
-            var result = await _gallery.Create(gallery);
+            var idClaim = User.Claims.FirstOrDefault(c => c.Type == "Id").Value;
+            int.TryParse(idClaim, out int userId);
+
+            var result = await _gallery.Create(userId, gallery);
             if (result.Status == 200)
             {
                 return Ok(result);
@@ -49,8 +53,8 @@ namespace WebApplication1.Controllers
             }
         }
 
-        [HttpGet("ChangeStatus/{id}")]
-        public async Task<ActionResult> ChangeStatus(int id)
+        [HttpPut("ChangeStatus")]
+        public async Task<ActionResult> ChangeStatus([FromForm] int id)
         {
             var result = await _gallery.ChangeStatus(id);
             if (result.Status == 200)
@@ -154,6 +158,30 @@ namespace WebApplication1.Controllers
             _context.AddRange(galleriesDetails);
             _context.SaveChanges();
             return Ok("");
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "admin")]
+        [Route("get_admin_galleries")]
+        public async Task<IActionResult> GetAdminGalleries([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] bool status, [FromQuery] List<string> by, [FromQuery] string designerName = "", [FromQuery] string colorTone = "", [FromQuery] string name = "")
+        {
+            var customPaging = await _gallery.GetAdminGalleries(pageNumber, pageSize, status, by, designerName, colorTone, name);
+
+            return Ok(customPaging);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "designer")]
+        [Route("get_designer_galleries")]
+        public async Task<IActionResult> GetDesignerGalleries([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] bool status, [FromQuery] string colorTone = "", [FromQuery] string name = "")
+        {
+
+            var idClaim = User.Claims.FirstOrDefault(c => c.Type == "Id").Value;
+            int.TryParse(idClaim, out int userId);
+
+            var customPaging = await _gallery.GetDesignerGalleries(userId, pageNumber, pageSize, status, colorTone, name);
+
+            return Ok(customPaging);
         }
     }
 }
