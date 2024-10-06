@@ -55,10 +55,21 @@ namespace TechWizWebApp.Repositories
 
                 query = _context.Stories;
 
-                DateTime fromDate = DateTime.Parse(from);
-                DateTime toDate = DateTime.Parse(to);
+               
 
-                query = query.Where(s => s.interior_designer_id == designer_id && s.created_at.Date >= fromDate && s.created_at.Date <= toDate).OrderByDescending(s => s.created_at);
+                query = query.Where(s => s.interior_designer_id == designer_id ).OrderByDescending(s => s.created_at);
+
+                if (from.Length != 0)
+                {
+                    DateTime fromDate = DateTime.Parse(from);
+                    query = query.Where(s => s.created_at.Date >= fromDate);
+                }
+
+                if (to.Length != 0)
+                {
+                    DateTime toDate = DateTime.Parse(to);
+                    query = query.Where(s => s.created_at.Date <= toDate);
+                }
 
                 var total = query.Count();
 

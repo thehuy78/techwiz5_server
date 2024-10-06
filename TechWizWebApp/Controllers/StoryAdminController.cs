@@ -33,7 +33,7 @@ namespace TechWizWebApp.Controllers
         [HttpGet]
         [Authorize(Roles = "designer, admin")]
         [Route("get_designer_story")]
-        public async Task<IActionResult> GetDesignerStory([FromQuery] int designer_id, [FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string from, [FromQuery] string to)
+        public async Task<IActionResult> GetDesignerStory([FromQuery] int designer_id, [FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string from ="", [FromQuery] string to = "")
         {
             var customPaging = await _story.GetDesignerStories(designer_id, pageNumber, pageSize, from, to);
 

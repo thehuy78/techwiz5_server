@@ -100,6 +100,7 @@ namespace TechWizWebApp.Repositories
                     address = p.address,
                     notes = p.notes,
                     scheduled_datetime = p.scheduled_datetime,
+                    time = p.time
                 }).ToListAsync(); 
 
                 var customPaging = new CustomPaging()
@@ -132,7 +133,7 @@ namespace TechWizWebApp.Repositories
         }
 
 
-        public async Task<CustomPaging> GetCustomerConsultation(int designerId, string status, int pageNumber, int pageSize)
+        public async Task<CustomPaging> GetCustomerConsultation(int designerId, string status, int pageNumber, int pageSize, string from, string to, string search)
         {
             try
             {
@@ -143,6 +144,24 @@ namespace TechWizWebApp.Repositories
                 query = _context.Consultations;
 
                 query = _context.Consultations.Where(c => c.designer_id == designer.id && c.status == status);
+
+                if(search.Length != 0)
+                {
+                    query = query.Where(c => c.user.userdetails.first_name.Contains(search) || c.user.userdetails.last_name.Contains(search) || c.address.Contains(search));
+                }
+
+
+                if (from.Length != 0)
+                {
+                    DateTime fromDate = DateTime.Parse(from);
+                    query = query.Where(c => c.scheduled_datetime.Date >= fromDate);
+                }
+
+                if (to.Length != 0)
+                {
+                    DateTime toDate = DateTime.Parse(to);
+                    query = query.Where(c => c.scheduled_datetime.Date <= toDate);
+                }
 
                 var total = query.Count();
 
@@ -163,6 +182,7 @@ namespace TechWizWebApp.Repositories
                     address = p.address,
                     notes = p.notes,
                     scheduled_datetime = p.scheduled_datetime,
+                    time = p.time
                 }).ToListAsync();
 
                 var customPaging = new CustomPaging()

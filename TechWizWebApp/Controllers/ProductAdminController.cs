@@ -26,7 +26,7 @@ namespace TechWizWebApp.Controllers
             return Ok(customResult);
         }
 
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin, designer")]
         [HttpGet]
         [Route("get_products")]
         public async Task<IActionResult> GetProductList([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] bool active, [FromQuery] IEnumerable<int> functionalityId, [FromQuery] IEnumerable<string> brand, [FromQuery] string search = "")

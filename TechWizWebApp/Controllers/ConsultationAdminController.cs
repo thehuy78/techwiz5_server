@@ -19,12 +19,12 @@ namespace TechWizWebApp.Controllers
         [Authorize(Roles = "designer")]
         [HttpGet]
         [Route("designer_consultation_list")]
-        public async Task<IActionResult> GetDesignerConsultationList([FromQuery] string status,[FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetDesignerConsultationList([FromQuery] string status,[FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string from = "", [FromQuery] string to = "", [FromQuery] string search = "")
         {
             var idClaim = User.Claims.FirstOrDefault(c => c.Type == "Id").Value;
             int.TryParse(idClaim, out int userId);
 
-            var customPaging = await _consultationAdmin.GetCustomerConsultation(userId, status, pageNumber, pageSize);
+            var customPaging = await _consultationAdmin.GetCustomerConsultation(userId, status, pageNumber, pageSize, from, to, search);
 
             return Ok(customPaging);
         }
