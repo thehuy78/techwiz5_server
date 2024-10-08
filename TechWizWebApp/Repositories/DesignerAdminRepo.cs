@@ -85,6 +85,25 @@ namespace TechWizWebApp.Repositories
                 }
 
                 _context.InteriorDesigners.Add(newDesigner);
+                await _context.SaveChangesAsync();
+
+
+                var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                foreach(var admin in admins)
+                {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"New designer with an name {newDesigner.first_name + " " + newDesigner.last_name} has successfully registered on DecorVista",
+                        type = "admin:designer",
+                        url = "/pending_detail?id=" + newDesigner.user_id,
+                        user_id = admin.user_id
+                    };
+
+                    _context.Notifications.Add(newNotification);
+                }
 
                 await _context.SaveChangesAsync();
 
@@ -390,6 +409,25 @@ namespace TechWizWebApp.Repositories
 
                 await _context.SaveChangesAsync();
 
+                var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                foreach (var admin in admins)
+                {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"Designer with an name {designer.first_name + " " + designer.last_name} has changed their day of work ",
+                        type = "admin:designer",
+                        url = "/designer_detail?id=" + designer.user_id,
+                        user_id = admin.user_id
+                    };
+
+                    _context.Notifications.Add(newNotification);
+                }
+
+                await _context.SaveChangesAsync();
+
                 return new CustomResult(200, "Success", designer);
 
             }
@@ -413,6 +451,25 @@ namespace TechWizWebApp.Repositories
                 designer.portfolio = portfolio;
 
                 _context.InteriorDesigners.Update(designer);
+
+                await _context.SaveChangesAsync();
+
+                var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                foreach (var admin in admins)
+                {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"Designer with an name {designer.first_name + " " + designer.last_name} has changed their portfolio ",
+                        type = "admin:designer",
+                        url = "/designer_detail?id=" + designer.user_id,
+                        user_id = admin.user_id
+                    };
+
+                    _context.Notifications.Add(newNotification);
+                }
 
                 await _context.SaveChangesAsync();
 
@@ -447,6 +504,25 @@ namespace TechWizWebApp.Repositories
 
                 await _context.SaveChangesAsync();
 
+                var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                foreach (var admin in admins)
+                {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"Designer with an name {designer.first_name + " " + designer.last_name} has changed their info ",
+                        type = "admin:designer",
+                        url = "/designer_detail?id=" + designer.user_id,
+                        user_id = admin.user_id
+                    };
+
+                    _context.Notifications.Add(newNotification);
+                }
+
+                await _context.SaveChangesAsync();
+
                 return new CustomResult(200, "Success", designer);
 
             }
@@ -472,6 +548,25 @@ namespace TechWizWebApp.Repositories
                 designer.avatar = newAvatar;
 
                 _context.InteriorDesigners.Update(designer);
+
+                await _context.SaveChangesAsync();
+
+                var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                foreach (var admin in admins)
+                {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"Designer with an name {designer.first_name + " " + designer.last_name} has changed their avatar ",
+                        type = "admin:designer",
+                        url = "/designer_detail?id=" + designer.user_id,
+                        user_id = admin.user_id
+                    };
+
+                    _context.Notifications.Add(newNotification);
+                }
 
                 await _context.SaveChangesAsync();
 
@@ -518,6 +613,25 @@ namespace TechWizWebApp.Repositories
                 designer.certificate = certificateString;
 
                 _context.InteriorDesigners.Update(designer);
+
+                await _context.SaveChangesAsync();
+
+                var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                foreach (var admin in admins)
+                {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"Designer with an name {designer.first_name + " " + designer.last_name} has changed their certification ",
+                        type = "admin:designer",
+                        url = "/designer_detail?id=" + designer.user_id,
+                        user_id = admin.user_id
+                    };
+
+                    _context.Notifications.Add(newNotification);
+                }
 
                 await _context.SaveChangesAsync();
 

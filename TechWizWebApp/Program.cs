@@ -77,6 +77,7 @@ builder.Services.AddTransient<IOrder, OrderRepo>();
 builder.Services.AddTransient<IOrderDetails, OrderDetailRepo>();
 builder.Services.AddTransient<IBlog, BlogRepo>();
 builder.Services.AddTransient<IStoryAdmin, StoryAdminRepo>();
+builder.Services.AddTransient<INotificationAdmin, NotificationAdminRepo>();
 
 //user
 builder.Services.AddTransient<IRoomTypeFE, RoomTypeFERepo>();

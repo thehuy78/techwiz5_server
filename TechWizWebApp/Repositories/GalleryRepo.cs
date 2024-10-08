@@ -7,6 +7,7 @@ using TechWizWebApp.Services;
 using TechWizWebApp.Interface;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.EntityFrameworkCore.Query;
+using Firebase.Auth;
 
 namespace TechWizWebApp.Repository
 {
@@ -99,6 +100,29 @@ namespace TechWizWebApp.Repository
                 }
 
                 await _context.SaveChangesAsync();
+
+                if (user.Role == "designer")
+                {
+                    var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                    foreach (var admin in admins)
+                    {
+                        var newNotification = new Notification
+                        {
+                            created_date = DateTime.Now,
+                            is_read = false,
+                            message = $@"Designer with an name {user.interiordesigner.first_name + " " + user.interiordesigner.last_name} has created new gallery",
+                            type = "admin:gallery",
+                            url = "/update_gallery?id=" + e.id,
+                            user_id = admin.user_id
+                        };
+
+                        _context.Notifications.Add(newNotification);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
                 return new CustomResult()
                 {
                     Status = 200,
@@ -167,7 +191,7 @@ namespace TechWizWebApp.Repository
             try
             {
 
-                var oldData = await _context.Galleries.SingleOrDefaultAsync(a => a.id == e.id);
+                var oldData = await _context.Galleries.Include(g => g.interior_designer).SingleOrDefaultAsync(a => a.id == e.id);
 
                 e.imageName = "";
 
@@ -216,6 +240,26 @@ namespace TechWizWebApp.Repository
                 oldData.room_type_id = e.room_type_id;
 
                 _context.Galleries.Update(oldData);
+
+                if (oldData.interior_designer_id != null)
+                {
+                    var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                    foreach (var admin in admins)
+                    {
+                        var newNotification = new Notification
+                        {
+                            created_date = DateTime.Now,
+                            is_read = false,
+                            message = $@"Designer with an name {oldData.interior_designer.first_name + " " + oldData.interior_designer.last_name} has updated their gallery",
+                            type = "admin:gallery",
+                            url = "/update_gallery?id=" + oldData.id,
+                            user_id = admin.user_id
+                        };
+
+                        _context.Notifications.Add(newNotification);
+                    }
+                }
 
                 await _context.SaveChangesAsync();
                 return new CustomResult()

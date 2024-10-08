@@ -219,16 +219,39 @@ namespace TechWizWebApp.Repositories
                 {
                     blog.interior_designer_id = null;
                     blog.status = true;
+                    _context.Blogs.Add(blog);
+                    await _context.SaveChangesAsync();
                 }
                 else
                 {
                     var interiorDesigner = await _context.InteriorDesigners.SingleOrDefaultAsync(i => i.user_id == user_id);
                     blog.interior_designer_id = interiorDesigner.id;
                     blog.status = false;
+                    _context.Blogs.Add(blog);
+                    await _context.SaveChangesAsync();
+
+                   
+                    var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                    foreach (var admin in admins)
+                    {
+                        var newNotification = new Notification
+                        {
+                            created_date = DateTime.Now,
+                            is_read = false,
+                            message = $@"Designer with an name {interiorDesigner.first_name + " " + interiorDesigner.last_name} has created new blog",
+                            type = "admin:blog",
+                            url = "/getblogbyid?id=" + blog.id,
+                            user_id = admin.user_id
+                        };
+
+                        _context.Notifications.Add(newNotification);
+                    }
+
+                    await _context.SaveChangesAsync();
                 }
 
-                _context.Blogs.Add(blog);
-                await _context.SaveChangesAsync();
+        
                 return new CustomResult(200, "success", blog);
             }
             catch (Exception ex)
@@ -322,6 +345,7 @@ namespace TechWizWebApp.Repositories
                 oldBlog.title = blog.title;
                 oldBlog.status = false;
                 _context.Blogs.Update(oldBlog);
+
                 return new CustomResult(200, "success", oldBlog);
             }
             catch (Exception ex)
@@ -353,6 +377,29 @@ namespace TechWizWebApp.Repositories
                 _context.Blogs.Update(blog);
 
                 await _context.SaveChangesAsync();
+
+                if (blog.interior_designer_id != null)
+                {
+                    var designer = await _context.InteriorDesigners.SingleOrDefaultAsync(d => d.id == blog.interior_designer_id);
+                    var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
+
+                    foreach (var admin in admins)
+                    {
+                        var newNotification = new Notification
+                        {
+                            created_date = DateTime.Now,
+                            is_read = false,
+                            message = $@"Designer with an name {designer.first_name + " " + designer.last_name} has changed their blog ",
+                            type = "admin:blog",
+                            url = "/getblogbyid?id=" + blog.id,
+                            user_id = admin.user_id
+                        };
+
+                        _context.Notifications.Add(newNotification);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
 
                 return new CustomResult(200, "Success", null);
             }
