@@ -1,0 +1,6 @@
+@TechWizWebApp_HostAddress = http://localhost:5036
+
+GET {{TechWizWebApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
