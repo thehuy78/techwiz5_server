@@ -209,7 +209,7 @@ Best regards, <div></div>
                 _config["JwtSettings:Issuer"],
                 _config["JwtSettings:Audience"],
                 claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.Now.AddDays(1),
                 signingCredentials: credentials
                 );
 
