@@ -91,7 +91,7 @@ namespace TechWizWebApp.Controllers
             DateTime expiryTime = DateTime.UtcNow.AddHours(1);
             string combinedString = $"{user.id}|{expiryTime:o}|{passwordReset}";
             string encodedUserId = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(combinedString));
-            string frontendUrl = $"http://localhost:3000/tw5/forgotPassword/{encodedUserId}";
+            string frontendUrl = $"http://localhost:3000/techwiz5_client/forgotpassword/{encodedUserId}";
 
 
 
