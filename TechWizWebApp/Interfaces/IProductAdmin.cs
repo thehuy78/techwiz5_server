@@ -19,6 +19,9 @@ namespace TechWizWebApp.Interfaces
 
         public Task<CustomResult> SearchProduct(string productName);
 
+        public Task<CustomResult> GetProduct(int productId);
+
+        public Task<CustomResult> UpdateProduct(RequestUpdateProduct requestUpdateProduct);
 
     }
 }

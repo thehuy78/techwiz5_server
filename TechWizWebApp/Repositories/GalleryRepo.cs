@@ -34,8 +34,21 @@ namespace TechWizWebApp.Repository
         {
             try
             {
-                var data = await _context.Galleries.SingleOrDefaultAsync(e => e.id == id);
+                var data = await _context.Galleries.Include(g => g.interior_designer).SingleOrDefaultAsync(e => e.id == id);
                 data!.status = !data.status;
+                if(data.interior_designer != null)
+                {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"Admin has {(data.status == true ? "activate" : "deactive")} your gallery",
+                        type = "designer:gallery",
+                        url = "/update_gallery?id=" + data.id,
+                        user_id = data.interior_designer.user_id
+                    };
+                    _context.Notifications.Add(newNotification);
+                }
                 _context.Galleries.Update(data);
                 await _context.SaveChangesAsync();
                 return new CustomResult()

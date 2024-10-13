@@ -21,5 +21,6 @@ namespace TechWizWebApp.Domain
         public string address {  get; set; } = string.Empty;
         public string status { get; set; } = string.Empty;
         public string notes { get; set; } = string.Empty;
+        public Review? review { get; set; }
     }
 }

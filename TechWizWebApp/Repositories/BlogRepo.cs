@@ -177,15 +177,46 @@ namespace TechWizWebApp.Repositories
         {
             try
             {
-                var blog = await _context.Blogs.Where(b => b.id == request.blogId).SingleOrDefaultAsync();
+                var blog = await _context.Blogs.Include(b => b.interior_designer).Where(b => b.id == request.blogId).SingleOrDefaultAsync();
                 if (blog != null)
                 {
                     if (request.yes)
                     {
                         blog.status = true;
+                        if (blog.interior_designer != null)
+                        {
+                            var newNotification = new Notification
+                            {
+                                created_date = DateTime.Now,
+                                is_read = false,
+                                message = $@"Admin has active your blog",
+                                type = "designer:blog",
+                                url = "/getblogbyid?id=" + blog.id,
+                                user_id = blog.interior_designer.user_id
+                            };
+                            _context.Notifications.Add(newNotification);
+                        }
+
                     }
                     else
-                    { blog.status = false; }
+                    {
+                        blog.status = false;
+
+                        if (blog.interior_designer != null)
+                        {
+                            var newNotification = new Notification
+                            {
+                                created_date = DateTime.Now,
+                                is_read = false,
+                                message = $@"Admin has deactive your blog",
+                                type = "designer:blog",
+                                url = "/getblogbyid?id=" + blog.id,
+                                user_id = blog.interior_designer.user_id
+                            };
+                            _context.Notifications.Add(newNotification);
+
+                        }
+                    }
                     await _context.SaveChangesAsync();
                     return new CustomResult(200, "success", blog);
                 }
@@ -230,7 +261,7 @@ namespace TechWizWebApp.Repositories
                     _context.Blogs.Add(blog);
                     await _context.SaveChangesAsync();
 
-                   
+
                     var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
 
                     foreach (var admin in admins)
@@ -251,7 +282,7 @@ namespace TechWizWebApp.Repositories
                     await _context.SaveChangesAsync();
                 }
 
-        
+
                 return new CustomResult(200, "success", blog);
             }
             catch (Exception ex)

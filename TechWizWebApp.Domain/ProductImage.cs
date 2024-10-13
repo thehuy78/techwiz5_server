@@ -12,7 +12,7 @@ namespace TechWizWebApp.Domain
         [Key]
         public int id { get; set; }
         public int productid { get; set; }
-        public  Product? product { get; set; }
+        public Product? product { get; set; }
         public string? imagename { get; set; }
     }
 }

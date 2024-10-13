@@ -14,6 +14,7 @@ namespace TechWizWebApp.Domain
         public int variant_id { get; set; }
         public Variant? variant { get; set; }
         public int quanity {  get; set; }
+        public bool review_status { get; set; } = false;
     }
 
 }

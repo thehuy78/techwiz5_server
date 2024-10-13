@@ -17,7 +17,7 @@ namespace TechWizWebApp.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles ="admin, designer")]
         [Route("admin_notification")]
         public async Task<IActionResult> GetAdminNotification( [FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string type = "")
         {

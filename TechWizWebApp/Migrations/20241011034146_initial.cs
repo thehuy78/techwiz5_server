@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TechWizWebApp.Migrations
 {
     /// <inheritdoc />
-    public partial class migration1 : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -89,7 +89,7 @@ namespace TechWizWebApp.Migrations
                     last_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     contact_number = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    yearsofexperience = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    yearsofexperience = table.Column<int>(type: "int", nullable: false),
                     specialization = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     portfolio = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     daywork = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -107,6 +107,29 @@ namespace TechWizWebApp.Migrations
                         principalTable: "Users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<int>(type: "int", nullable: false),
+                    is_read = table.Column<bool>(type: "bit", nullable: false),
+                    type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "Users",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -284,6 +307,27 @@ namespace TechWizWebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Stories",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    interior_designer_id = table.Column<int>(type: "int", nullable: false),
+                    image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Stories", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Stories_InteriorDesigners_interior_designer_id",
+                        column: x => x.interior_designer_id,
+                        principalTable: "InteriorDesigners",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Carts",
                 columns: table => new
                 {
@@ -322,7 +366,8 @@ namespace TechWizWebApp.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     order_id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     variant_id = table.Column<int>(type: "int", nullable: false),
-                    quanity = table.Column<int>(type: "int", nullable: false)
+                    quanity = table.Column<int>(type: "int", nullable: false),
+                    review_status = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -348,6 +393,7 @@ namespace TechWizWebApp.Migrations
                     variantid = table.Column<int>(type: "int", nullable: false),
                     attributetype = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     priority = table.Column<int>(type: "int", nullable: false),
+                    note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     attributevalue = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -372,7 +418,7 @@ namespace TechWizWebApp.Migrations
                     id_booking = table.Column<int>(type: "int", nullable: true),
                     create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Consultationid = table.Column<int>(type: "int", nullable: true),
+                    consultation_id = table.Column<int>(type: "int", nullable: true),
                     comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     InteriorDesignerid = table.Column<int>(type: "int", nullable: true)
                 },
@@ -380,8 +426,8 @@ namespace TechWizWebApp.Migrations
                 {
                     table.PrimaryKey("PK_Reviews", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Reviews_Consultations_Consultationid",
-                        column: x => x.Consultationid,
+                        name: "FK_Reviews_Consultations_consultation_id",
+                        column: x => x.consultation_id,
                         principalTable: "Consultations",
                         principalColumn: "id");
                     table.ForeignKey(
@@ -507,6 +553,11 @@ namespace TechWizWebApp.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Notifications_user_id",
+                table: "Notifications",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_order_id",
                 table: "OrderDetails",
                 column: "order_id");
@@ -532,9 +583,11 @@ namespace TechWizWebApp.Migrations
                 column: "functionality_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reviews_Consultationid",
+                name: "IX_Reviews_consultation_id",
                 table: "Reviews",
-                column: "Consultationid");
+                column: "consultation_id",
+                unique: true,
+                filter: "[consultation_id] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_InteriorDesignerid",
@@ -550,6 +603,11 @@ namespace TechWizWebApp.Migrations
                 name: "IX_Reviews_user_id",
                 table: "Reviews",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Stories_interior_designer_id",
+                table: "Stories",
+                column: "interior_designer_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subcribes_gallery_id",
@@ -591,6 +649,9 @@ namespace TechWizWebApp.Migrations
                 name: "GalleryDetails");
 
             migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
                 name: "OrderDetails");
 
             migrationBuilder.DropTable(
@@ -598,6 +659,9 @@ namespace TechWizWebApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "Reviews");
+
+            migrationBuilder.DropTable(
+                name: "Stories");
 
             migrationBuilder.DropTable(
                 name: "Subcribes");

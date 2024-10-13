@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TechWizWebApp.Data;
 using TechWizWebApp.Interfaces;
 using TechWizWebApp.RequestModels;
 
@@ -54,6 +55,7 @@ namespace TechWizWebApp.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("search_product")]
         public async Task<IActionResult> SearchProduct([FromQuery] string productName)
         {
@@ -62,6 +64,7 @@ namespace TechWizWebApp.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("show_specific_product")]
         public async Task<IActionResult> GetSpecificProduct([FromQuery] ICollection<int> productId)
         {
@@ -69,6 +72,24 @@ namespace TechWizWebApp.Controllers
             return Ok(customResult);
         }
 
+        [HttpGet]
+        [Authorize(Roles = "designer, admin")]
+        [Route("get_product")]
+        public async Task<IActionResult> GetProductById([FromQuery] int productId)
+        {
+            var customResult = await _productAdmin.GetProduct(productId);
 
+            return Ok(customResult);
+        }
+
+        [HttpPut]
+        [Authorize(Roles = "admin")]
+        [Route("update_product")]
+        public async Task<IActionResult> UpdateProduct([FromForm] RequestUpdateProduct requestUpdateProduct)
+        {
+            var customResult = await _productAdmin.UpdateProduct(requestUpdateProduct);
+
+            return Ok(customResult);
+        }
     }
 }

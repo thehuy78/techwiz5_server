@@ -139,6 +139,25 @@ namespace TechWizWebApp.Repositories
 
         }
 
+        public async Task<CustomResult> GetProduct(int productId)
+        {
+            try
+            {
+                var product = await _context.Products.Include(p => p.images).Include(p => p.variants).ThenInclude(v => v.variantattributes).SingleOrDefaultAsync(p => p.id == productId);
+
+                if (product == null)
+                {
+                    return new CustomResult(404, "Not found", null);
+                }
+
+                return new CustomResult(200, "Success", product);
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult(400, "Bad request", ex.Message);
+            }
+        }
+
         public async Task<CustomPaging> GetProductList(int pageNumber, int pageSize, bool active, IEnumerable<int> functionalityId, IEnumerable<string> brand, string search)
         {
             try
@@ -255,6 +274,78 @@ namespace TechWizWebApp.Repositories
             catch (Exception ex)
             {
                 return new CustomResult(400, "Bad Request", ex.Message);
+            }
+        }
+
+        public async Task<CustomResult> UpdateProduct(RequestUpdateProduct requestUpdateProduct)
+        {
+            try
+            {
+                var product = await _context.Products.Include(p => p.images).Include(p => p.variants).SingleOrDefaultAsync(p => p.id == requestUpdateProduct.Id);
+
+                if (product == null)
+                {
+                    return new CustomResult(404, "Not found", null);
+                }
+
+                bool isChangedAvatar = false;
+                product.brand = requestUpdateProduct.Brand;
+                product.functionality_id = requestUpdateProduct.RoomFuncion;
+                product.productname = requestUpdateProduct.ProductName;
+                product.description = requestUpdateProduct.Description;
+                product.updated_at = DateTime.Now;
+                product.status = requestUpdateProduct.Status;
+
+                if (requestUpdateProduct.OldImages == null)
+                {
+                    requestUpdateProduct.OldImages = [];
+                }
+
+                foreach (var image in product.images)
+                {
+                    if (!requestUpdateProduct.OldImages.Contains(image.imagename))
+                    {
+                        _context.ProductImages.Remove(image);
+                    }
+                }
+
+                if (requestUpdateProduct.UploadImages != null)
+                {
+                    foreach (var image in requestUpdateProduct.UploadImages)
+                    {
+                        var imageName = await _fileService.UploadImageAsync(image);
+
+                        if(requestUpdateProduct.OldImages.Count() == 0 && isChangedAvatar == false)
+                        {
+                            isChangedAvatar = true;
+                            product.imageName = imageName;
+                        }
+                        var newImage = new ProductImage
+                        {
+                            imagename = imageName,
+                            product = product,
+                        };
+                        _context.ProductImages.Add(newImage);
+                    }
+                }
+
+                foreach (var json in requestUpdateProduct.VariantJson)
+                {
+                    var updateVariant = JsonConvert.DeserializeObject<Variant>(json);
+                    var variant = await _context.Variants.SingleOrDefaultAsync(v => v.id == updateVariant.id);
+                    variant.price = updateVariant.price;
+                    variant.saleprice = updateVariant.saleprice;
+                    _context.Variants.Update(variant);
+                }
+
+                await _context.SaveChangesAsync();
+                
+                return new CustomResult(200, "Success", null);
+
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult(400, "Bad request", null);
             }
         }
 
