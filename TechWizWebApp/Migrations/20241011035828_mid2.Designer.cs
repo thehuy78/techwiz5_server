@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TechWizWebApp.Data;
 
@@ -11,9 +12,11 @@ using TechWizWebApp.Data;
 namespace TechWizWebApp.Migrations
 {
     [DbContext(typeof(DecorVistaDbContext))]
-    partial class DecorVistaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241011035828_mid2")]
+    partial class mid2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -472,9 +475,6 @@ namespace TechWizWebApp.Migrations
                     b.Property<string>("comment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("consultation_id")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("create_at")
                         .HasColumnType("datetime2");

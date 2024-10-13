@@ -25,9 +25,12 @@ namespace TechWizWebApp.Domain
 
         public DateTime? update_at { get; set; }
         public int? consultation_id { get; set; }
-
+     
         public Consultation? consultation { get; set; }
 
+        public Consultation? Consultation { get; set; }
+
         public string comment { get; set; } = string.Empty;
+
     }
 }

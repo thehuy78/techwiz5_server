@@ -17,7 +17,19 @@ namespace TechWizWebApp.RepositotyCustomer
         {
             try
             {
-                var list = await _db.Reviews.Where(e => e.id_booking != null && e.user_id == id).OrderByDescending(e => e.create_at).ToListAsync();
+                var list = await _db.Reviews.Include(e=>e.Consultation).ThenInclude(e=>e.interior_designer)
+                    .Include(e => e.user).ThenInclude(e=>e.userdetails)
+                    .Where(e => e.Consultation.designer_id == id && e.product_id == null).OrderByDescending(e => e.create_at).Select(r=> new ListReviewBookingGet
+                    {
+                        id = r.id,
+                        comment = r.comment,
+                        score = r.score,
+                        create_at= r.create_at,
+                        first_name = r.user.userdetails.first_name,
+                        last_name = r.user.userdetails.last_name
+                        
+
+                    }).ToListAsync();
 
                 return new CustomResult()
                 {
@@ -70,6 +82,10 @@ namespace TechWizWebApp.RepositotyCustomer
             }
         }
 
+     
+
+
+
         public async Task<CustomResult> SendFeedBackConsultation(Review e)
         {
             try
@@ -97,9 +113,10 @@ namespace TechWizWebApp.RepositotyCustomer
         {
             try
             {
-                var order = await _db.Orders.SingleOrDefaultAsync(a => a.id == e.orderId);
-                order.status = "Finished";
-                _db.Orders.Update(order);
+             
+                var detail = await _db.OrderDetails.SingleOrDefaultAsync(a => a.id == e.orderdetailId);
+                detail.review_status = true;
+                _db.OrderDetails.Update(detail);
                 Review review = new Review();
                 review.user_id = e.user_id;
                 review.create_at = DateTime.Now;
@@ -123,6 +140,46 @@ namespace TechWizWebApp.RepositotyCustomer
                 };
             }
         }
+
+
+        public async Task<CustomResult> OrderReview(int id)
+        {
+            try
+            {
+                var rs = await _db.OrderDetails.Include(e => e.order).Include(e => e.variant)
+                    .ThenInclude(e => e.product)
+                    .Include(e => e.variant).ThenInclude(e=>e.variantattributes)
+                    .Where(e => e.order.status == "completed" && e.review_status == false).Select(e=>new ListOrderReviewRes()
+                    {
+                        idOrder = e.order_id,
+                        create_at = e.order.created_date,
+                        id_orderdetail = e.id,
+                        image = e.variant.product.imageName,
+                        name = e.variant.product.productname,
+                        user_id = e.order.user_id,
+                        product_id =  e.variant.productid,
+                        variants = e.variant.variantattributes,
+                        
+                    }).ToListAsync();
+                return new CustomResult()
+                {
+                    Status = 200,
+                    data = rs,
+                    Message = "get success"
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new CustomResult()
+                {
+                    Status = 400,
+                    Message = "Server Error"
+                };
+            }
+        }
+
+
         public class ReviewRes
         {
             public int user_id { get; set; }
@@ -137,6 +194,7 @@ namespace TechWizWebApp.RepositotyCustomer
             public string? orderId { get; set; }
 
             public string? comment { get; set; }
+            public int? orderdetailId { get; set; }
         }
 
 
@@ -151,6 +209,34 @@ namespace TechWizWebApp.RepositotyCustomer
             public string first_name { get; set; } = string.Empty;
             public string last_name { get; set; } = string.Empty;
             public string avatar { get; set; } = string.Empty;
+        }
+
+        public class ListReviewBookingGet
+        {
+            public int id { get; set; }
+            public string first_name { get; set; }
+            public string last_name { get; set; }
+            public DateTime? create_at { get; set; }
+            public string comment { get; set; }
+            public float? score { get; set; }
+
+            
+        }
+
+
+            public class ListOrderReviewRes
+        {
+            public string idOrder { get; set; }
+            public int user_id { get; set; }
+            public int? product_id { get;set; }
+            public int? id_orderdetail { get; set; }
+            public DateTime? create_at { get;set;}
+            public string name { get; set; }
+            public string image { get; set; }
+
+            public List<VariantAttribute> variants { get; set; }
+          
+     
         }
     }
 }

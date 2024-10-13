@@ -195,7 +195,7 @@ namespace TechWizWebApp.Repositories
                                 user_id = blog.interior_designer.user_id
                             };
                             _context.Notifications.Add(newNotification);
-                        }
+                    }
 
                     }
                     else
@@ -261,7 +261,7 @@ namespace TechWizWebApp.Repositories
                     _context.Blogs.Add(blog);
                     await _context.SaveChangesAsync();
 
-
+                   
                     var admins = await _context.UserDetails.Where(u => u.role == "admin").ToListAsync();
 
                     foreach (var admin in admins)
@@ -282,7 +282,7 @@ namespace TechWizWebApp.Repositories
                     await _context.SaveChangesAsync();
                 }
 
-
+        
                 return new CustomResult(200, "success", blog);
             }
             catch (Exception ex)

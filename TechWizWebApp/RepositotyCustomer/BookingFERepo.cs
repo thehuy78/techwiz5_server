@@ -40,7 +40,7 @@ namespace TechWizWebApp.RepositotyCustomer
         {
             try
             {
-                var list = await _dbContext.Consultations.Include(e => e.interior_designer).Where(e => e.user_id == iduser).Select
+                var list = await _dbContext.Consultations.Include(e=>e.review).Include(e => e.interior_designer).Where(e => e.user_id == iduser).Select
                    (e => new BookingRes()
                    {
                        id = e.id,
@@ -51,7 +51,7 @@ namespace TechWizWebApp.RepositotyCustomer
                        last_name = e.interior_designer.last_name,
                        avatar = e.interior_designer.avatar,
                        contact_number = e.interior_designer.contact_number,
-
+                       review = e.review
 
 
                    }).ToListAsync();
@@ -84,6 +84,7 @@ public class BookingRes
     public DateTime scheduled_date { get; set; }
     public string scheduled_time { get; set; }
 
+    public Review review { get; set; }
     public string first_name { get; set; }
     public string last_name { get; set; }
     public string contact_number { get; set; }

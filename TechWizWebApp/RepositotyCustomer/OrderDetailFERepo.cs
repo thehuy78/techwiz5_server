@@ -19,7 +19,7 @@ namespace TechWizWebApp.RepositotyCustomer
             try
             {
 
-                var list = await _dbContext.OrderDetails.Include(e => e.variant).ThenInclude(e => e.variantattributes).Where(e => e.order_id == orderid).Select(e => new OrderDetailRes()
+                var list = await _dbContext.OrderDetails.Include(e=>e.order).Include(e => e.variant).ThenInclude(e => e.variantattributes).Where(e => e.order_id == orderid).Select(e => new OrderDetailRes()
                 {
                     id = e.id,
                     fullname = e.order.fullname,
@@ -30,6 +30,7 @@ namespace TechWizWebApp.RepositotyCustomer
                     price = e.variant.price,
                     quantity = e.quanity,
                     idorder = orderid,
+                    status = e.order.status,
                     variantattributes = e.variant.variantattributes,
                     image = e.variant.product.imageName,
                     totalprice = e.order.total,
@@ -61,6 +62,8 @@ namespace TechWizWebApp.RepositotyCustomer
     {
         public int? id { get; set; }
         public string? idorder { get; set; }
+
+        public string? status { get; set; }
 
         public string? image { get; set; }
 

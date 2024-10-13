@@ -13,5 +13,8 @@ namespace TechWizWebApp.InterfaceCustomer
         Task<CustomResult> SendFeedBackProduct(ReviewRes e);
 
         Task<CustomResult> SendFeedBackConsultation(Review e);
+
+
+        Task<CustomResult> OrderReview(int id);
     }
 }

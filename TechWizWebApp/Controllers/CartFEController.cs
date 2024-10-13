@@ -20,7 +20,7 @@ namespace TechWizWebApp.Controllers
         }
 
         [HttpPost("add_cart")]
-        [Authorize(Roles= "customer")]
+        
         public async Task<IActionResult> AddToCart([FromForm] CartRequestUser cartRequest)
         {
             try
@@ -132,6 +132,8 @@ namespace TechWizWebApp.Controllers
         public int quantity { get; set; }
         public int productid { get; set; }
     }
+
+
 
 
 

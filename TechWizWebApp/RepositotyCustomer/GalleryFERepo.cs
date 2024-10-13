@@ -17,7 +17,7 @@ namespace TechWizWebApp.RepositotyCustomer
         {
             try
             {
-                var list = await _context.Galleries.Include(e => e.room_type).Include(e => e.subcribes).Where(e => e.status == true).Select(e => new GalleryRes()
+                var list = await _context.Galleries.Include(e => e.room_type).Include(e=>e.galleryDetails).Include(e => e.subcribes).Where(e => e.status == true).Select(e => new GalleryRes()
                 {
                     id = e.id,
                     name = e.gallery_name,
@@ -31,7 +31,8 @@ namespace TechWizWebApp.RepositotyCustomer
                     updated_date = e.updated_date,
                     subcribes = e.subcribes.Count(),
                     roomtype = e.room_type.name,
-                    stringurl = e.room_type.url
+                    stringurl = e.room_type.url,
+                    product_count = e.galleryDetails.Count()
                 }).ToListAsync();
 
                 return new CustomResult()
@@ -54,7 +55,7 @@ namespace TechWizWebApp.RepositotyCustomer
         {
             try
             {
-                var list = await _context.Galleries.Include(e => e.subcribes).Where(e => e.status == true).Select(e => new GalleryRes()
+                var list = await _context.Galleries.Include(e => e.subcribes).Include(e=>e.galleryDetails).Where(e => e.status == true).Select(e => new GalleryRes()
                 {
                     id = e.id,
                     name = e.gallery_name,
@@ -67,7 +68,8 @@ namespace TechWizWebApp.RepositotyCustomer
                     created_date = e.created_date,
                     updated_date = e.updated_date,
                     subcribes = e.subcribes.Count(),
-                    roomtype = e.room_type.name
+                    roomtype = e.room_type.name,
+                     product_count = e.galleryDetails.Count()
 
                 }).SingleOrDefaultAsync(e => e.id == id);
 
@@ -91,7 +93,7 @@ namespace TechWizWebApp.RepositotyCustomer
         {
             try
             {
-                var list = await _context.Galleries.Include(e => e.subcribes).Where(e => e.status == true).Select(e => new GalleryRes()
+                var list = await _context.Galleries.Include(e => e.subcribes).Include(e=>e.galleryDetails).Where(e => e.status == true).Select(e => new GalleryRes()
                 {
                     id = e.id,
                     name = e.gallery_name,
@@ -104,6 +106,7 @@ namespace TechWizWebApp.RepositotyCustomer
                     created_date = e.created_date,
                     updated_date = e.updated_date,
                     subcribes = e.subcribes.Count(),
+                    product_count = e.galleryDetails.Count(),
                     roomtype = e.room_type.name
                 }).Where(e => e.room_type_id == idRoomType).ToListAsync();
 
@@ -127,7 +130,7 @@ namespace TechWizWebApp.RepositotyCustomer
         {
             try
             {
-                var list = await _context.Galleries.Include(e => e.subcribes).Include(e => e.room_type).Where(e => e.room_type.url == url && e.status == true).OrderByDescending(e => e.created_date).Select(e => new GalleryRes()
+                var list = await _context.Galleries.Include(e => e.subcribes).Include(e => e.room_type).Include(e=>e.galleryDetails).Where(e => e.room_type.url == url && e.status == true).OrderByDescending(e => e.created_date).Select(e => new GalleryRes()
                 {
                     id = e.id,
                     name = e.gallery_name,
@@ -140,7 +143,8 @@ namespace TechWizWebApp.RepositotyCustomer
                     created_date = e.created_date,
                     updated_date = e.updated_date,
                     roomtype = e.room_type.name,
-                    subcribes = e.subcribes.Count()
+                    subcribes = e.subcribes.Count(),
+                    product_count = e.galleryDetails.Count()
                 }).ToListAsync();
                 return new CustomResult()
                 {
@@ -193,6 +197,8 @@ namespace TechWizWebApp.RepositotyCustomer
             public string color_tone { get; set; }
 
             public int? view_count { get; set; }
+
+            public int? product_count { get; set; }
 
             public string imageName { get; set; }
 

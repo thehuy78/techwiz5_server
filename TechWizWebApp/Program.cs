@@ -92,6 +92,9 @@ builder.Services.AddTransient<IOrderdetailFE, OrderDetailFERepo>();
 builder.Services.AddTransient<IBookingFE, BookingFERepo>();
 builder.Services.AddTransient<IUserFE, UserFERepo>();
 
+builder.Services.AddTransient<IBookmarkFE, BookmarkFERepo>();
+builder.Services.AddTransient<INotificationFE, NotificationFERepo>();
+
 
 
 

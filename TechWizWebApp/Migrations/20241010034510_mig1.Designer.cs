@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TechWizWebApp.Data;
 
@@ -11,9 +12,11 @@ using TechWizWebApp.Data;
 namespace TechWizWebApp.Migrations
 {
     [DbContext(typeof(DecorVistaDbContext))]
-    partial class DecorVistaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241010034510_mig1")]
+    partial class mig1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -466,15 +469,15 @@ namespace TechWizWebApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
+                    b.Property<int?>("Consultationid")
+                        .HasColumnType("int");
+
                     b.Property<int?>("InteriorDesignerid")
                         .HasColumnType("int");
 
                     b.Property<string>("comment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("consultation_id")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("create_at")
                         .HasColumnType("datetime2");
@@ -496,11 +499,9 @@ namespace TechWizWebApp.Migrations
 
                     b.HasKey("id");
 
-                    b.HasIndex("InteriorDesignerid");
+                    b.HasIndex("Consultationid");
 
-                    b.HasIndex("id_booking")
-                        .IsUnique()
-                        .HasFilter("[id_booking] IS NOT NULL");
+                    b.HasIndex("InteriorDesignerid");
 
                     b.HasIndex("product_id");
 
@@ -870,14 +871,13 @@ namespace TechWizWebApp.Migrations
 
             modelBuilder.Entity("TechWizWebApp.Domain.Review", b =>
                 {
+                    b.HasOne("TechWizWebApp.Domain.Consultation", "Consultation")
+                        .WithMany()
+                        .HasForeignKey("Consultationid");
+
                     b.HasOne("TechWizWebApp.Domain.InteriorDesigner", null)
                         .WithMany("reviews")
                         .HasForeignKey("InteriorDesignerid");
-
-                    b.HasOne("TechWizWebApp.Domain.Consultation", "Consultation")
-                        .WithOne("review")
-                        .HasForeignKey("TechWizWebApp.Domain.Review", "id_booking")
-                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("TechWizWebApp.Domain.Product", "product")
                         .WithMany("reviews")
@@ -958,11 +958,6 @@ namespace TechWizWebApp.Migrations
                         .IsRequired();
 
                     b.Navigation("variant");
-                });
-
-            modelBuilder.Entity("TechWizWebApp.Domain.Consultation", b =>
-                {
-                    b.Navigation("review");
                 });
 
             modelBuilder.Entity("TechWizWebApp.Domain.Functionality", b =>

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using TechWizWebApp.Data;
+using TechWizWebApp.Domain;
 using TechWizWebApp.InterfaceCustomer;
 
 namespace TechWizWebApp.RepositotyCustomer
@@ -31,6 +32,7 @@ namespace TechWizWebApp.RepositotyCustomer
                     portfolio = e.portfolio,
                     daywork = e.daywork,
                     status = e.status,
+                    avatar = e.avatar,
                     count_review = e.reviews.Count(),
                     count_blog = e.blogs.Count(),
                     count_booking = e.consultations.Count(),
@@ -56,7 +58,7 @@ namespace TechWizWebApp.RepositotyCustomer
         {
             try
             {
-                var list = await _context.InteriorDesigners.Include(e => e.reviews).Include(e => e.blogs).Where(e => e.status == true).Select(e => new DesignerRes()
+                var list = await _context.InteriorDesigners.Include(e=>e.stories).Include(e => e.reviews).Include(e => e.blogs).Where(e => e.status == true).Select(e => new DesignerRes()
                 {
                     id = e.id,
                     user_id = e.user_id,
@@ -70,6 +72,9 @@ namespace TechWizWebApp.RepositotyCustomer
                     daywork = e.daywork,
                     status = e.status,
                     avatar = e.avatar,
+                    certificate = e.certificate,
+                    blogs = e.blogs.OrderByDescending(s => s.CreatedDate).ToList(),
+                    stories = e.stories.OrderByDescending(s => s.created_at).ToList(),
                     count_review = e.reviews.Count(),
                     count_blog = e.blogs.Count(),
                     count_booking = e.consultations.Count(),
@@ -101,6 +106,8 @@ namespace TechWizWebApp.RepositotyCustomer
             public string last_name { get; set; }
             public string contact_number { get; set; }
             public string address { get; set; }
+
+            public string certificate { get; set; }
             public int yearsofexperience { get; set; }
             public string specialization { get; set; }
             public string portfolio { get; set; }
@@ -108,6 +115,10 @@ namespace TechWizWebApp.RepositotyCustomer
             public bool status { get; set; }
              public string avatar { get; set; }
             public int count_review { get; set; }
+
+            public List<Story>  stories { get; set; }
+
+            public List<Blog> blogs { get; set; }
 
             public int count_booking { get; set; }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using static TechWizWebApp.RepositotyCustomer.ReviewFERepo;
 using TechWizWebApp.Domain;
 using TechWizWebApp.InterfaceCustomer;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace TechWizWebApp.Controllers
 {
@@ -68,6 +69,20 @@ namespace TechWizWebApp.Controllers
             else
             {
                 return BadRequest(result);
+            }
+        }
+
+        [HttpGet("GetOrderReview/{id}")]
+        public async Task<ActionResult> GetOrderReview(int id)
+        {
+            var rs = await _review.OrderReview(id);
+            if (rs.Status == 200)
+            {
+                return Ok(rs);
+            }
+            else
+            {
+                return BadRequest(rs);
             }
         }
     }
