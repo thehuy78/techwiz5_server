@@ -49,5 +49,21 @@ namespace TechWizWebApp.Controllers
             return Ok(customResult);
         }
 
+        [HttpPost]
+        [Authorize(Roles = "admin")]
+        [Route("send_notification")]
+        public async Task<IActionResult> SendAdminNotification([FromForm] NotificationRequest notificationRequest)
+        {
+            var customResult = await _notificationAdmin.SendNotification(notificationRequest.sendTo, notificationRequest.message);
+
+            return Ok(customResult);
+        }
+
+    }
+
+    public class NotificationRequest
+    {
+        public ICollection<string> sendTo { get; set; }
+        public string message { get; set; }
     }
 }

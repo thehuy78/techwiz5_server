@@ -25,10 +25,31 @@ namespace TechWizWebApp.Repository
                 var data = await _context.Orders.Include(p => p.user).SingleOrDefaultAsync(e => e.id == id);
                 if (data.status == "packaged")
                 {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"Your order with id {data.id} has been delivery",
+                        type = "customer:order",
+                        url = "/orderdetails/" + data.id,
+                        user_id = data.user.id
+                    };
+                    _context.Notifications.Add(newNotification);
+
                     data.status = "delivery";
                 }
                 else
                 {
+                    var newNotification = new Notification
+                    {
+                        created_date = DateTime.Now,
+                        is_read = false,
+                        message = $@"Your order with id {data.id} has been completed",
+                        type = "customer:order",
+                        url = "/orderdetails/" + data.id,
+                        user_id = data.user.id
+                    };
+                    _context.Notifications.Add(newNotification);
                     data.status = "completed";
                 }
             
@@ -61,7 +82,7 @@ namespace TechWizWebApp.Repository
                     id = e.id,
                     customerName = e.user.userdetails.last_name + " " + e.user.userdetails.first_name,
                     created_date = e.created_date,
-                    contact_number = e.user.userdetails.contact_number,
+                    contact_number = e.phone,
                     address = e.address,
                     total = e.total,
                     status = e.status
@@ -145,7 +166,7 @@ namespace TechWizWebApp.Repository
     <p>Your order <strong># {order?.id} </strong> was placed on [orderDate] and is being processed. We will notify you when it has been shipped.</p>
 
     <h3>Order Summary</h3>
-    <p><strong>Order Number:</strong> {order?.id}/p>
+    <p><strong>Order Number:</strong> {order?.id}</p>
     <p><strong>Order Date:</strong> {order?.created_date}</p>          
     <p><strong>Shipping Address:</strong> {order?.address}</p>
 

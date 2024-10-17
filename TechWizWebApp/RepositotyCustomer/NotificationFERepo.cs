@@ -47,7 +47,7 @@ namespace TechWizWebApp.RepositotyCustomer
            
             try
             {
-                var rs = await _db.Notifications.Where(e => e.user_id == id).ToListAsync();
+                var rs = await _db.Notifications.Where(e => e.user_id == id).OrderByDescending(e => e.created_date).ToListAsync();
                 return new CustomResult
                 {
                     Status = 200,

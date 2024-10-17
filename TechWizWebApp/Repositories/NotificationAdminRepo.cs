@@ -3,6 +3,7 @@ using TechWizWebApp.Data;
 using TechWizWebApp.Domain;
 using TechWizWebApp.Interfaces;
 using TechWizWebApp.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TechWizWebApp.Repositories
 {
@@ -118,6 +119,60 @@ namespace TechWizWebApp.Repositories
                 return new CustomResult(200, "Success", null);
             }
             catch (Exception ex)
+            {
+                return new CustomResult(400, "Bad request", ex.Message);
+            }
+        }
+
+        public async Task<CustomResult> SendNotification(ICollection<string> sendTo, string message)
+        {
+            try
+            {
+                foreach(var to in sendTo)
+                {
+                    if(to == "customer")
+                    {
+                        var customers = await _context.Users.Include(u => u.userdetails).Where(u => u.userdetails.role == "customer").ToListAsync();
+
+                        foreach(var customer in customers)
+                        {
+                            var newNotification = new Notification
+                            {
+                                created_date = DateTime.Now,
+                                is_read = false,
+                                message = message,
+                                type = "customer:admin",
+                                url = "/",
+                                user_id = customer.id
+                            };
+                            _context.Notifications.Add(newNotification);
+                        }
+                    }
+                    else
+                    {
+                        var designers = await _context.Users.Include(u => u.userdetails).Where(u => u.userdetails == null).ToListAsync();
+
+                        foreach (var designer in designers)
+                        {
+                            var newNotification = new Notification
+                            {
+                                created_date = DateTime.Now,
+                                is_read = false,
+                                message = message,
+                                type = "designer:admin",
+                                url = "/",
+                                user_id = designer.id
+                            };
+                            _context.Notifications.Add(newNotification);
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                }
+                return new CustomResult(200, "Success", null);
+            }
+            catch(Exception ex)
             {
                 return new CustomResult(400, "Bad request", ex.Message);
             }

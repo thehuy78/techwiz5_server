@@ -56,7 +56,19 @@ namespace TechWizWebApp.Controllers
             return Ok(customResult);
         }
 
-    
+        [Authorize(Roles = "designer")]
+        [HttpPut]
+        [Route("designer_finished_consultation")]
+        public async Task<IActionResult> DesignerFinishConsultation([FromForm] int consultationId)
+        {
+            var idClaim = User.Claims.FirstOrDefault(c => c.Type == "Id").Value;
+            int.TryParse(idClaim, out int userId);
+
+            var customResult = await _consultationAdmin.FinishedConsultation(userId, consultationId);
+
+            return Ok(customResult);
+        }
+
 
         [Authorize(Roles = "designer")]
         [HttpPut]

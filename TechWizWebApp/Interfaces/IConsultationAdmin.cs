@@ -9,6 +9,8 @@ namespace TechWizWebApp.Interfaces
         Task<CustomResult> AcceptConsultation(int designerId, int consultationId);
         Task<CustomResult> DenyConsultation(int designerId, int consultationId);
 
+        Task<CustomResult> FinishedConsultation(int designerId, int consultationId);
+
         Task<CustomPaging> GetAdminCustomerConsultation(string status, int pageNumber, int pageSize);
     }
 }

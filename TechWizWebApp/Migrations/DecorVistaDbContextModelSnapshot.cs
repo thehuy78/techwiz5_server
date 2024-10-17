@@ -473,9 +473,6 @@ namespace TechWizWebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("consultation_id")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("create_at")
                         .HasColumnType("datetime2");
 

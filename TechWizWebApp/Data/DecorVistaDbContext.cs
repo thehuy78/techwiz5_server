@@ -207,11 +207,13 @@ namespace TechWizWebApp.Data
                 .HasForeignKey(b => b.interior_designer_id)
                 .OnDelete(DeleteBehavior.NoAction);
 
+
             modelBuilder.Entity<Review>()
-                .HasOne(r => r.consultation)
-                .WithOne(c => c.review)
-                .HasForeignKey<Review>(r => r.consultation_id)
-                .OnDelete(DeleteBehavior.NoAction);
+             .HasOne(r => r.Consultation)
+             .WithOne(c => c.review)
+             .HasForeignKey<Review>(r => r.id_booking)
+             .OnDelete(DeleteBehavior.NoAction);
+
 
             base.OnModelCreating(modelBuilder);
         }
